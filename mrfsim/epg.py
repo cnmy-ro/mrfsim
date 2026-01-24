@@ -184,36 +184,37 @@ class EPG:
 
         return echoes_batch  # Shape: (batch, num_echoes)
     
-    def find_echoes2(self):
-        # TODO: implement properly
+    # def find_echoes2(self):
+    #     # Fixes the problem of find_echoes2, where the first echo is ignored in the MRFFISPSequence
+    #     # TODO: implement properly
 
-        assert self.done
+    #     assert self.done
 
-        if not isinstance(self.seq, MRFFISPSequence):
-            batch_size = self.omega.shape[0]
-            timing = torch.tensor(self.seq.timing, device=self.device)
-            echoes_batch = self.omega_f0_history.clone()  # Shape: (batch, num_events)        
+    #     if not isinstance(self.seq, MRFFISPSequence):
+    #         batch_size = self.omega.shape[0]
+    #         timing = torch.tensor(self.seq.timing, device=self.device)
+    #         echoes_batch = self.omega_f0_history.clone()  # Shape: (batch, num_events)        
 
-            # Find echoes
-            #   If two non-zero F+'s happen at the same timing, only save the second one as the proper echo
-            echoes_batch[:, torch.argwhere( timing[1:]-timing[:-1] < 10*EPS )] = 0
-            #   Check for non-zero k=0 state
-            echoes_batch = [echoes_batch[b, torch.abs(echoes_batch[b, :]) > 5*EPS].clone() for b in range(batch_size)]
-            echoes_batch = torch.stack(echoes_batch, dim=0)
+    #         # Find echoes
+    #         #   If two non-zero F+'s happen at the same timing, only save the second one as the proper echo
+    #         echoes_batch[:, torch.argwhere( timing[1:]-timing[:-1] < 10*EPS )] = 0
+    #         #   Check for non-zero k=0 state
+    #         echoes_batch = [echoes_batch[b, torch.abs(echoes_batch[b, :]) > 5*EPS].clone() for b in range(batch_size)]
+    #         echoes_batch = torch.stack(echoes_batch, dim=0)
  
-        else:
-            echoes_batch = []
-            grad_index = 0
-            for i in range(len(self.seq.timing)):
-                if self.seq.events[i] == 'grad':
-                    if self.seq.grad[grad_index] == 1:
-                        echoes_batch.append(self.omega_f0_history[:, i+1].clone())
-                    grad_index += 1
-            echoes_batch = torch.stack(echoes_batch, dim=1)
-            # Scale echoes with exp(-TE/T2)  (https://github.com/imr-framework/mrf/blob/cd54590d149e8e8142bfda7ffc6e8811f8ad92b4/mrf/EPG_Dict_Sim/Function/EPGsim_MRF.m#L34)
-            echoes_batch = echoes_batch * torch.exp(-self.seq.te/self.t2_list).unsqueeze(1)
+    #     else:
+    #         echoes_batch = []
+    #         grad_index = 0
+    #         for i in range(len(self.seq.timing)):
+    #             if self.seq.events[i] == 'grad':
+    #                 if self.seq.grad[grad_index] == 1:
+    #                     echoes_batch.append(self.omega_f0_history[:, i+1].clone())
+    #                 grad_index += 1
+    #         echoes_batch = torch.stack(echoes_batch, dim=1)
+    #         # Scale echoes with exp(-TE/T2)  (https://github.com/imr-framework/mrf/blob/cd54590d149e8e8142bfda7ffc6e8811f8ad92b4/mrf/EPG_Dict_Sim/Function/EPGsim_MRF.m#L34)
+    #         echoes_batch = echoes_batch * torch.exp(-self.seq.te/self.t2_list).unsqueeze(1)
 
-        return echoes_batch  # Shape: (batch, num_echoes)
+    #     return echoes_batch  # Shape: (batch, num_echoes)
     
     def reset(self):
         self.t1_list = None
