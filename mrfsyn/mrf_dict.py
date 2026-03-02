@@ -3,7 +3,7 @@ import torch
 from tqdm import tqdm
 import h5py
 
-from mrfsim.epg import *
+from mrfsyn.epg import *
 
 
 

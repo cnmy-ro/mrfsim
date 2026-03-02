@@ -14,7 +14,7 @@ import pandas as pd
 import torch
 import matplotlib.pyplot as plt
 
-from mrfsim.utils import *
+from mrfsyn.utils import *
 
 
 
